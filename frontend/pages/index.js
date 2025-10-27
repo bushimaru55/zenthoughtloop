@@ -140,8 +140,10 @@ const [diagnosis, setDiagnosis] = useState(null);
       );
       setLog(updatedLog);
       
-      // 5往復ごとに診断を生成
-      if (updatedLog.length > 0 && updatedLog.length % 5 === 0) {
+      // 5往復ごとに診断を生成（会話数/2 = 往復数なので、5往復は10メッセージ）
+      // logには1往復（user + ai）が1エントリとして入る
+      const exchangeCount = updatedLog.filter(entry => entry.ai && !entry.isLoading).length;
+      if (exchangeCount > 0 && exchangeCount % 5 === 0) {
         await generateDiagnosis(data.conversation_id);
         await checkForReflection(data.conversation_id);
       }
