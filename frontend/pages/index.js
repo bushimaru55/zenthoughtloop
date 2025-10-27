@@ -214,6 +214,63 @@ const [diagnosis, setDiagnosis] = useState(null);
     }
   };
 
+  // クイックスタート関数
+  const handleQuickStart = async (message) => {
+    // 新規会話を作成
+    try {
+      const res = await fetch("http://localhost:8000/conversations", {
+        method: "POST",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setConversationId(data.conversation_id);
+        setLog([]);
+        setInput("");
+        
+        // メッセージを自動送信
+        setIsLoading(true);
+        setError(null);
+        
+        const newLog = [{ user: message, ai: "", isLoading: true }];
+        setLog(newLog);
+        
+        try {
+          const res = await fetch("http://localhost:8000/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: message, conversation_id: data.conversation_id }),
+          });
+          
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          
+          const chatData = await res.json();
+          
+          setLog(newLog.map((entry, index) => 
+            index === newLog.length - 1
+              ? { user: message, ai: chatData.reply, isLoading: false }
+              : entry
+          ));
+        } catch (err) {
+          setError(err.message);
+          setLog([]);
+        } finally {
+          setIsLoading(false);
+        }
+        
+        // 会話一覧を再取得
+        const listRes = await fetch("http://localhost:8000/conversations");
+        if (listRes.ok) {
+          const listData = await listRes.json();
+          setConversations(listData.conversations);
+        }
+      }
+    } catch (err) {
+      setError("会話の開始に失敗しました");
+    }
+  };
+
   const startNewConversation = async () => {
     // トピック選択モーダルを表示
     setShowTopicModal(true);
@@ -325,28 +382,28 @@ const [diagnosis, setDiagnosis] = useState(null);
                           <p className="text-purple-200 text-sm mb-3 text-center">このセッションで学べること（クリックして選択）：</p>
                           <div className="grid grid-cols-2 gap-3">
                             <button
-                              onClick={() => setInput('自分自身について深く考えてみたいです。')}
+                              onClick={() => handleQuickStart('自分自身について深く考えてみたいです。')}
                               className="p-3 bg-purple-900/50 hover:bg-purple-900/70 rounded-xl border border-purple-400/30 text-left transition-all hover:scale-105"
                             >
                               <span className="text-lg">🌱</span>
                               <p className="text-purple-300/80 text-xs mt-1">自己理解を深める</p>
                             </button>
                             <button
-                              onClick={() => setInput('創造性を高めたいです。何から始めればいいですか？')}
+                              onClick={() => handleQuickStart('創造性を高めたいです。何から始めればいいですか？')}
                               className="p-3 bg-purple-900/50 hover:bg-purple-900/70 rounded-xl border border-purple-400/30 text-left transition-all hover:scale-105"
                             >
                               <span className="text-lg">💡</span>
                               <p className="text-purple-300/80 text-xs mt-1">創造的な思考を育む</p>
                             </button>
                             <button
-                              onClick={() => setInput('問題解決力を高めたいです。')}
+                              onClick={() => handleQuickStart('問題解決力を高めたいです。')}
                               className="p-3 bg-purple-900/50 hover:bg-purple-900/70 rounded-xl border border-purple-400/30 text-left transition-all hover:scale-105"
                             >
                               <span className="text-lg">🧩</span>
                               <p className="text-purple-300/80 text-xs mt-1">問題解決力を高める</p>
                             </button>
                             <button
-                              onClick={() => setInput('感情を理解し、うまく向き合いたいです。')}
+                              onClick={() => handleQuickStart('感情を理解し、うまく向き合いたいです。')}
                               className="p-3 bg-purple-900/50 hover:bg-purple-900/70 rounded-xl border border-purple-400/30 text-left transition-all hover:scale-105"
                             >
                               <span className="text-lg">💫</span>
