@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import WelcomeModal from "../components/WelcomeModal";
 import ReflectionModal from "../components/ReflectionModal";
 import TrainingTopicModal from "../components/TrainingTopicModal";
+import DiagnosisPanel from "../components/DiagnosisPanel";
 
 export default function Home() {
   const [input, setInput] = useState("");
@@ -285,6 +286,9 @@ export default function Home() {
             </a>
           </div>
         </header>
+
+        {/* リアルタイム診断パネル */}
+        <DiagnosisPanel userId={userId} />
 
         <div className="bg-white/5 backdrop-blur-lg rounded-3xl shadow-2xl border border-purple-400/20 overflow-hidden">
           {/* チャット履歴 */}
