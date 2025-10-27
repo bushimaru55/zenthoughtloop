@@ -22,24 +22,39 @@ export default function WelcomeModal({ onClose }) {
       title: "3ステージの成長の旅",
       icon: "🌳",
       content: (
-        <div className="space-y-6">
+        <div className="space-y-4">
           <div className="bg-purple-800/30 p-4 rounded-2xl border border-purple-400/30">
             <h3 className="text-purple-300 font-medium mb-2 flex items-center gap-2">
-              <span>Stage 1: 思考の覚醒</span>
+              <span>🌱 Stage 1: 思考の覚醒</span>
             </h3>
-            <p className="text-purple-200 text-sm">AIの問いかけを通じて、自分自身の思考を深めていきます。</p>
+            <p className="text-purple-200 text-sm mb-2">
+              ・AIの問いかけで自分の思考を深める<br/>
+              ・答えではなく問いを受け取る習慣をつける<br/>
+              ・より深く考える力をつける
+            </p>
+            <div className="text-purple-300/70 text-xs mt-2">10回の会話で進めます</div>
           </div>
           <div className="bg-purple-800/30 p-4 rounded-2xl border border-purple-400/30">
             <h3 className="text-purple-300 font-medium mb-2 flex items-center gap-2">
-              <span>Stage 2: 思考の洗練</span>
+              <span>🌿 Stage 2: 思考の洗練</span>
             </h3>
-            <p className="text-purple-200 text-sm">定期的な振り返りで、自分の思考パターンを認識します。</p>
+            <p className="text-purple-200 text-sm mb-2">
+              ・定期的な振り返りで思考パターンを認識<br/>
+              ・自分の思考の変化に気づく<br/>
+              ・より客観的な視点を養う
+            </p>
+            <div className="text-purple-300/70 text-xs mt-2">3回の振り返りで進めます</div>
           </div>
           <div className="bg-purple-800/30 p-4 rounded-2xl border border-purple-400/30">
             <h3 className="text-purple-300 font-medium mb-2 flex items-center gap-2">
-              <span>Stage 3: AI共創マスター</span>
+              <span>🌟 Stage 3: AI共創マスター</span>
             </h3>
-            <p className="text-purple-200 text-sm">AIへの効果的な指示方法を学び、創造的なAI活用スキルを習得します。</p>
+            <p className="text-purple-200 text-sm mb-2">
+              ・AIへの効果的な指示方法を学ぶ<br/>
+              ・プロンプトエンジニアリングの基礎<br/>
+              ・創造的なAI活用スキルを習得
+            </p>
+            <div className="text-purple-300/70 text-xs mt-2">AIと共創できるスキルを身につけます</div>
           </div>
         </div>
       )
