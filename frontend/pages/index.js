@@ -289,15 +289,32 @@ export default function Home() {
         <div className="bg-white/5 backdrop-blur-lg rounded-3xl shadow-2xl border border-purple-400/20 overflow-hidden">
           {/* チャット履歴 */}
           <div className="h-96 overflow-y-auto p-6 space-y-6 custom-scrollbar">
-            {log.length === 0 ? (
-              <div className="flex items-center justify-center h-full text-purple-200/60">
-                <div className="text-center">
-                  <div className="text-5xl mb-4 animate-pulse">💫</div>
-                  <p className="text-xl font-light mb-2">あなたの思考を自由に</p>
-                  <p className="text-sm font-light">内なる智慧が問いを返します</p>
-                </div>
-              </div>
-            ) : (
+                  {log.length === 0 ? (
+                    <div className="flex items-center justify-center h-full text-purple-200/60">
+                      <div className="text-center max-w-md">
+                        <div className="text-6xl mb-6 animate-pulse">✨</div>
+                        <h3 className="text-2xl font-light mb-4 text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-purple-200 to-pink-200">
+                          トレーニングを始めましょう
+                        </h3>
+                        <p className="text-lg font-light mb-6">AIとの対話を通じて、思考力・創造性・人間性を高めます</p>
+                        
+                        <div className="bg-purple-800/30 p-6 rounded-2xl border border-purple-400/30 mb-6">
+                          <p className="text-purple-200 text-sm mb-3">このセッションで学べること：</p>
+                          <ul className="text-left text-purple-300/80 text-sm space-y-2">
+                            <li>🌱 自己理解を深める</li>
+                            <li>💡 創造的な思考を育む</li>
+                            <li>🧩 問題解決力を高める</li>
+                            <li>💫 感情を理解し前向きに向き合う</li>
+                          </ul>
+                        </div>
+
+                        <p className="text-xs font-light text-purple-300/50">
+                          上の入力欄に自由に言葉を書いてください<br/>
+                          または「新規会話」ボタンでテーマを選択して始められます
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
               log.map((m, i) => (
                 <div key={i} className="space-y-3 animate-fadeIn">
                   <div className="flex items-start space-x-3">
