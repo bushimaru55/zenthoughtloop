@@ -59,7 +59,7 @@ export default function DiagnosisPanel({ userId }) {
 
   const getStageInfo = (stage) => {
     const stages = {
-      1: { title: '🌱 Stage 1: 思考の覚醒', progress: '会話', target: 10 },
+      1: { title: '🌱 Stage 1: 思考の覚醒', progress: '会話', target: 5 },
       2: { title: '🌿 Stage 2: 思考の洗練', progress: '振り返り', target: 3 },
       3: { title: '🌟 Stage 3: AI共創マスター', progress: 'マスター', target: 0 }
     };

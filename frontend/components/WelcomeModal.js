@@ -32,7 +32,7 @@ export default function WelcomeModal({ onClose }) {
               ・答えではなく問いを受け取る習慣をつける<br/>
               ・より深く考える力をつける
             </p>
-            <div className="text-purple-300/70 text-xs mt-2">10回の会話で進めます</div>
+            <div className="text-purple-300/70 text-xs mt-2">5回の会話で進めます</div>
           </div>
           <div className="bg-purple-800/30 p-4 rounded-2xl border border-purple-400/30">
             <h3 className="text-purple-300 font-medium mb-2 flex items-center gap-2">

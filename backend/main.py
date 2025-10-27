@@ -249,8 +249,8 @@ async def update_progress(user_id: str, session: Session = Depends(get_session))
     ).all()
     progress.total_reflections = len(reflection_count)
     
-    # ステージtransition判定
-    if progress.current_stage == 1 and progress.total_conversations >= 10:
+    # ステージ遷移判定（5往復でStage 2へ）
+    if progress.current_stage == 1 and progress.total_conversations >= 5:
         progress.current_stage = 2
     elif progress.current_stage == 2 and progress.total_reflections >= 3:
         progress.current_stage = 3
