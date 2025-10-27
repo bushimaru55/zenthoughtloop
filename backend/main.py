@@ -6,7 +6,7 @@ from typing import List
 import os
 from datetime import datetime
 from database import engine, init_db, get_session
-from models import Conversation, Message, UserProgress, Reflection
+from models import Conversation, Message, UserProgress, Reflection, PromptExercise
 
 app = FastAPI()
 app.add_middleware(
@@ -63,8 +63,34 @@ async def chat(request: Request, session: Session = Depends(get_session)):
     session.add(user_msg)
     session.commit()
     
-    # OpenAI API呼び出し
-    prompt = f"あなたは人間性と創造性を取り戻すためのAIコーチです。答えを出さずに、思考を深める質問を返してください。\nユーザー: {user_message}\nAI:"
+    # ユーザーステージを取得
+    statement = select(UserProgress)
+    user_progress = session.exec(statement).first()
+    current_stage = user_progress.current_stage if user_progress else 1
+    
+    # ステージに応 entsprechendenAIプロンプト生成
+    if current_stage == 1:
+        prompt = f"""あなたは人間性と創造性を取り戻すためのAIコーチです。
+答えを出さずに、思考を深める質問を返してください。
+ユーザーの発言を受け止め、さらに深く考えるきっかけとなる質問をしてください。
+
+ユーザー: {user_message}
+AI:"""
+    elif current_stage == 2:
+        prompt = f"""あなたは思考パターンを分析するコーチです。
+ユーザーの思考の流れや変化を観察し、振り返りを促す質問をしてください。
+思考のパターンや気づきの変化に注目して、より深い洞察を得られるような質問をしてください。
+
+ユーザー: {user_message}
+AI:"""
+    else:  # stage 3
+        prompt = f"""あなたはAI共創パートナーです。
+ユーザーの指示を理解し、より良い結果を得られるようにサポートしてください。
+ユーザーが求めているものを明確にし、より良いコミュニケーション方法を提案してください。
+共創的な対話を心がけてください。
+
+ユーザー: {user_message}
+AI:"""
     
     try:
         response = client.chat.completions.create(
@@ -303,3 +329,77 @@ async def save_reflection_response(reflection_id: int, request: Request, session
     session.commit()
     
     return {"success": True, "reflection_id": reflection.id}
+
+
+@app.get("/exercises")
+async def get_exercises(session: Session = Depends(get_session)):
+    """練習課題を取得"""
+    exercises = session.exec(select(PromptExercise)).all()
+    
+    if not exercises or len(exercises) == 0:
+        # 初期データがなければ空リストを返す
+        return {"exercises": []}
+    
+    result = []
+    for exercise in exercises:
+        result.append({
+            "id": exercise.id,
+            "title": exercise.title,
+            "goal": exercise.goal,
+            "good_example": exercise.good_example,
+            "bad_example": exercise.bad_example,
+            "difficulty": exercise.difficulty
+        })
+    
+    return {"exercises": result}
+
+
+@app.post("/exercises/{exercise_id}/evaluate")
+async def evaluate_prompt(exercise_id: int, request: Request, session: Session = Depends(get_session)):
+    """ユーザープロンプトを評価"""
+    data = await request.json()
+    user_prompt = data.get("prompt", "")
+    user_id = data.get("user_id", "default")
+    
+    if not user_prompt:
+        return {"error": "プロンプトが空です"}
+    
+    # 練習課題を取得
+    exercise = session.get(PromptExercise, exercise_id)
+    if not exercise:
+        return {"error": "練習課題が見つかりません"}
+    
+    # OpenAIで評価
+    eval_prompt = f"""プロンプトエンジニアリングの練習課題を評価してください。
+
+【目標】: {exercise.goal}
+
+【良い例】:
+{exercise.good_example}
+
+【悪い例】:
+{exercise.bad_example}
+
+【ユーザーのプロンプト】:
+{user_prompt}
+
+以下の観点で0.0-10.0のスコアとフィードバックを提供してください:
+1. 明確さ: 意図が明確か
+2. 具体性: 具体的な指示か
+3. 構造: 構造化されているか
+4. 創造性: 創造的な内容か
+
+JSON形式で返してください:
+{{"score": 0.0-10.0, "feedback": "フィードバック内容"}}"""
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4-turbo",
+            messages=[{"role": "user", "content": eval_prompt}],
+            max_tokens=200
+        )
+        feedback = response.choices[0].message.content
+        
+        return {"feedback": feedback, "exercise_id": exercise_id}
+    except Exception as e:
+        return {"error": f"評価中にエラーが発生しました: {str(e)}"}
