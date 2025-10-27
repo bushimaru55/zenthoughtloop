@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import WelcomeModal from "../components/WelcomeModal";
+import ReflectionModal from "../components/ReflectionModal";
 
 export default function Home() {
   const [input, setInput] = useState("");
@@ -11,6 +12,20 @@ export default function Home() {
   const [conversations, setConversations] = useState([]);
   const [showSidebar, setShowSidebar] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
+  const [showReflection, setShowReflection] = useState(false);
+  const [reflectionPrompt, setReflectionPrompt] = useState('');
+  const [reflectionId, setReflectionId] = useState(null);
+  const [userId, setUserId] = useState('');
+
+  // ユーザーID生成
+  useEffect(() => {
+    let uid = localStorage.getItem('userId');
+    if (!uid) {
+      uid = 'user_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('userId', uid);
+    }
+    setUserId(uid);
+  }, []);
 
   // 初回訪問チェック
   useEffect(() => {
@@ -113,11 +128,17 @@ export default function Home() {
       }
       
       // ログを更新してAI応答を追加（newLogを使用）
-      setLog(newLog.map((entry, index) => 
+      const updatedLog = newLog.map((entry, index) => 
         index === newLog.length - 1
           ? { user: userMessage, ai: data.reply, isLoading: false }
           : entry
-      ));
+      );
+      setLog(updatedLog);
+      
+      // リフレクションチェック（5往復ごと）
+      if (updatedLog.length > 0 && updatedLog.length % 5 === 0) {
+        await checkForReflection(data.conversation_id);
+      }
     } catch (err) {
       setError(err.message);
       // エラー時はローディング中のエントリを削除（元のlogに戻す）
@@ -126,6 +147,42 @@ export default function Home() {
       setIsLoading(false);
     }
   }
+
+  // リフレクションプロンプトを取得
+  const checkForReflection = async (convId) => {
+    try {
+      const res = await fetch(`http://localhost:8000/reflection/prompt`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversation_id: convId })
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        setReflectionPrompt(data.prompt);
+        setReflectionId(data.reflection_id);
+        setShowReflection(true);
+      }
+    } catch (err) {
+      console.error('リフレクション取得エラー:', err);
+    }
+  };
+
+  // リフレクション回答を保存
+  const saveReflection = async (response) => {
+    if (!reflectionId) return;
+    
+    await fetch(`http://localhost:8000/reflection/${reflectionId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ response })
+    });
+    
+    // 進捗を更新
+    if (userId) {
+      await fetch(`http://localhost:8000/progress/${userId}/update`, { method: 'POST' });
+    }
+  };
   
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -298,6 +355,15 @@ export default function Home() {
       {/* ウェルカムモーダル */}
       {showWelcome && (
         <WelcomeModal onClose={() => setShowWelcome(false)} />
+      )}
+
+      {/* リフレクションモーダル */}
+      {showReflection && (
+        <ReflectionModal
+          prompt={reflectionPrompt}
+          onClose={() => setShowReflection(false)}
+          onSave={saveReflection}
+        />
       )}
 
       {/* サイドパネル - 会話履歴 */}
