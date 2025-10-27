@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import WelcomeModal from "../components/WelcomeModal";
 import ReflectionModal from "../components/ReflectionModal";
+import TrainingTopicModal from "../components/TrainingTopicModal";
 
 export default function Home() {
   const [input, setInput] = useState("");
@@ -16,6 +17,8 @@ export default function Home() {
   const [reflectionPrompt, setReflectionPrompt] = useState('');
   const [reflectionId, setReflectionId] = useState(null);
   const [userId, setUserId] = useState('');
+  const [showTopicModal, setShowTopicModal] = useState(false);
+  const [selectedTopic, setSelectedTopic] = useState(null);
 
   // ユーザーID生成
   useEffect(() => {
@@ -192,6 +195,14 @@ export default function Home() {
   };
 
   const startNewConversation = async () => {
+    // トピック選択モーダルを表示
+    setShowTopicModal(true);
+  };
+
+  const handleTopicSelect = async (topicId) => {
+    setSelectedTopic(topicId);
+    setShowTopicModal(false);
+    
     try {
       const res = await fetch("http://localhost:8000/conversations", {
         method: "POST",
@@ -201,6 +212,20 @@ export default function Home() {
         setConversationId(data.conversation_id);
         setLog([]);
         setInput("");
+        
+        // 選択されたトピックに基づいて最初のメッセージを自動入力
+        const topicMessages = {
+          'self-understanding': '自分自身について深く考えてみたいです。',
+          'creativity': '創造性を高めたいです。何から始めればいいですか？',
+          'problem-solving': '問題解決力を高めたいです。',
+          'goal-setting': '目標を立てて実行したいです。',
+          'emotion-management': '感情を理解し、うまく向き合いたいです。',
+          'free-talk': '話したいことがあります。'
+        };
+        
+        if (topicMessages[topicId]) {
+          setInput(topicMessages[topicId]);
+        }
         
         // 会話一覧を再取得
         const listRes = await fetch("http://localhost:8000/conversations");
@@ -363,6 +388,14 @@ export default function Home() {
           prompt={reflectionPrompt}
           onClose={() => setShowReflection(false)}
           onSave={saveReflection}
+        />
+      )}
+
+      {/* トレーニングトピック選択モーダル */}
+      {showTopicModal && (
+        <TrainingTopicModal
+          onSelect={handleTopicSelect}
+          onClose={() => setShowTopicModal(false)}
         />
       )}
 
