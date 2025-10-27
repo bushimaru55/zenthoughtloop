@@ -450,6 +450,48 @@ curl -X GET http://localhost:8000/conversations/1/messages
 
 ---
 
+## 2024-10-27 17:35 - Phase 3: 思考ツリービジュアライザーの実装完了
+
+### 実施した作業
+
+1. **React-Flowの導入**
+   - package.jsonにreactflowを追加
+   - Dockerコンテナを再ビルド
+
+2. **思考ツリーコンポーネントの作成**
+   - `frontend/components/ThoughtTree.js` - React-Flowを使った可視化
+   - 会話データからツリー構造を生成
+   - ミニマップとコントロールパネルを統合
+
+3. **ツリーページの作成**
+   - `frontend/pages/tree.js` - 専用ページを作成
+   - 会話データを取得して表示
+
+4. **UI統合**
+   - チャットページに「🌳 思考のツリー」ボタンを追加
+   - スピリチュアルなデザインを維持
+
+### 変更ファイル
+
+- `frontend/package.json` - reactflow追加
+- `frontend/components/ThoughtTree.js` - 新規作成
+- `frontend/pages/tree.js` - 新規作成
+- `frontend/pages/index.js` - ツリーボタン追加
+
+### 実装された機能
+
+- ✅ 会話の階層構造の可視化
+- ✅ インタラクティブな操作（ズーム、パン）
+- ✅ ミニマップ表示
+- ✅ コントロールパネル
+
+### 動作確認
+
+- アクセス: http://localhost:3000/tree
+- または、メインページから「🌳 思考のツリー」ボタンをクリック
+
+---
+
 ## 2024-10-27 17:30 - Git/GitHubリポジトリセットアップ完了
 
 ### 実施した作業

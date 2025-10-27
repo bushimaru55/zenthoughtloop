@@ -184,6 +184,12 @@ export default function Home() {
             >
               📚 会話履歴
             </button>
+            <a
+              href="/tree"
+              className="px-6 py-3 bg-purple-600/30 hover:bg-purple-600/40 text-purple-200 rounded-2xl font-light transition-all border border-purple-400/30 hover:border-purple-400/50 backdrop-blur-sm"
+            >
+              🌳 思考のツリー
+            </a>
           </div>
         </header>
 
