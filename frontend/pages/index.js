@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import WelcomeModal from "../components/WelcomeModal";
 
 export default function Home() {
   const [input, setInput] = useState("");
@@ -9,6 +10,16 @@ export default function Home() {
   const [conversationId, setConversationId] = useState(null);
   const [conversations, setConversations] = useState([]);
   const [showSidebar, setShowSidebar] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  // 初回訪問チェック
+  useEffect(() => {
+    const hasVisited = localStorage.getItem('hasVisited');
+    if (!hasVisited) {
+      setShowWelcome(true);
+      localStorage.setItem('hasVisited', 'true');
+    }
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -283,6 +294,11 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* ウェルカムモーダル */}
+      {showWelcome && (
+        <WelcomeModal onClose={() => setShowWelcome(false)} />
+      )}
 
       {/* サイドパネル - 会話履歴 */}
       {showSidebar && (

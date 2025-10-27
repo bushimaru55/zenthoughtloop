@@ -51,11 +51,13 @@ async def chat(request: Request, session: Session = Depends(get_session)):
             session.refresh(conversation)
             conversation_id = conversation.id
     
-    # ユーザーメッセージを保存
+    # ユーザーメッセージを保存（思考の深さスコアを計算）
+    depth_score = calculate_depth_score(user_message)
     user_msg = Message(
         conversation_id=conversation_id,
         role="user",
-        content=user_message
+        content=user_message,
+        depth_score=depth_score
     )
     session.add(user_msg)
     session.commit()
@@ -72,15 +74,21 @@ async def chat(request: Request, session: Session = Depends(get_session)):
         ai_reply = response.choices[0].message.content
         
         # AI応答を保存
+        ai_depth_score = calculate_depth_score(ai_reply)
         ai_msg = Message(
             conversation_id=conversation_id,
             role="ai",
-            content=ai_reply
+            content=ai_reply,
+            depth_score=ai_depth_score
         )
         session.add(ai_msg)
         session.commit()
         
-        return {"reply": ai_reply, "conversation_id": conversation_id}
+        return {
+            "reply": ai_reply,
+            "conversation_id": conversation_id,
+            "depth_score": depth_score
+        }
     except Exception as e:
         return {"reply": f"エラーが発生しました: {str(e)}", "conversation_id": conversation_id}
 
@@ -136,3 +144,33 @@ async def create_conversation(session: Session = Depends(get_session)):
     session.refresh(conversation)
     
     return {"conversation_id": conversation.id, "created_at": conversation.created_at.isoformat()}
+
+
+# 思考の深さスコアを計算する関数
+def calculate_depth_score(message: str) -> float:
+    """メッセージの思考の深さをスコアリング"""
+    score = 0.0
+    
+    # 基本スコア: 文字数
+    score += min(len(message) / 50, 3.0)  # 最大3.0
+    
+    # 質問の数
+    question_count = message.count('?') + message.count('？')
+    score += min(question_count * 0.5, 2.0)  # 最大2.0
+    
+    # 抽象的な言葉（思考を深める単語）
+    abstract_words = ['なぜ', 'どうして', 'もし', '仮に', '本質', '意義', '価値', '意味', 'なぜなら']
+    abstract_count = sum(1 for word in abstract_words if word in message)
+    score += min(abstract_count * 0.3, 2.0)  # 最大2.0
+    
+    # 感情表現
+    emotion_words = ['感じる', '思う', '考える', '信じる', '願う', '希望']
+    emotion_count = sum(1 for word in emotion_words if word in message)
+    score += min(emotion_count * 0.2, 1.5)  # 最大1.5
+    
+    # 具体的な事例や詳細
+    detail_indicators = ['例えば', '具体的に', '実際に', '〜として']
+    detail_count = sum(1 for word in detail_indicators if word in message)
+    score += min(detail_count * 0.4, 1.5)  # 最大1.5
+    
+    return min(score, 10.0)  # 最大10.0
