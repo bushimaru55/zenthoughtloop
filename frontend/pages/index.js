@@ -322,13 +322,37 @@ const [diagnosis, setDiagnosis] = useState(null);
                         <p className="text-lg font-light mb-6">AIとの対話を通じて、思考力・創造性・人間性を高めます</p>
                         
                         <div className="bg-purple-800/30 p-6 rounded-2xl border border-purple-400/30 mb-6">
-                          <p className="text-purple-200 text-sm mb-3">このセッションで学べること：</p>
-                          <ul className="text-left text-purple-300/80 text-sm space-y-2">
-                            <li>🌱 自己理解を深める</li>
-                            <li>💡 創造的な思考を育む</li>
-                            <li>🧩 問題解決力を高める</li>
-                            <li>💫 感情を理解し前向きに向き合う</li>
-                          </ul>
+                          <p className="text-purple-200 text-sm mb-3 text-center">このセッションで学べること（クリックして選択）：</p>
+                          <div className="grid grid-cols-2 gap-3">
+                            <button
+                              onClick={() => setInput('自分自身について深く考えてみたいです。')}
+                              className="p-3 bg-purple-900/50 hover:bg-purple-900/70 rounded-xl border border-purple-400/30 text-left transition-all hover:scale-105"
+                            >
+                              <span className="text-lg">🌱</span>
+                              <p className="text-purple-300/80 text-xs mt-1">自己理解を深める</p>
+                            </button>
+                            <button
+                              onClick={() => setInput('創造性を高めたいです。何から始めればいいですか？')}
+                              className="p-3 bg-purple-900/50 hover:bg-purple-900/70 rounded-xl border border-purple-400/30 text-left transition-all hover:scale-105"
+                            >
+                              <span className="text-lg">💡</span>
+                              <p className="text-purple-300/80 text-xs mt-1">創造的な思考を育む</p>
+                            </button>
+                            <button
+                              onClick={() => setInput('問題解決力を高めたいです。')}
+                              className="p-3 bg-purple-900/50 hover:bg-purple-900/70 rounded-xl border border-purple-400/30 text-left transition-all hover:scale-105"
+                            >
+                              <span className="text-lg">🧩</span>
+                              <p className="text-purple-300/80 text-xs mt-1">問題解決力を高める</p>
+                            </button>
+                            <button
+                              onClick={() => setInput('感情を理解し、うまく向き合いたいです。')}
+                              className="p-3 bg-purple-900/50 hover:bg-purple-900/70 rounded-xl border border-purple-400/30 text-left transition-all hover:scale-105"
+                            >
+                              <span className="text-lg">💫</span>
+                              <p className="text-purple-300/80 text-xs mt-1">感情を理解し前向きに向き合う</p>
+                            </button>
+                          </div>
                         </div>
 
                         <p className="text-xs font-light text-purple-300/50">
