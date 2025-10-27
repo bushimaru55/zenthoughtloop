@@ -561,7 +561,7 @@ curl -X GET http://localhost:8000/conversations/1/messages
 
 - AI共創トレーニングモード実装
 - ステージ適応型AIプロンプト実装
-- 成長ダッシュボード作成
+- 成長ダッシュボード作成（今後の拡張予定）
 
 ---
 
