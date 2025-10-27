@@ -20,6 +20,7 @@ export default function Home() {
   const [userId, setUserId] = useState('');
   const [showTopicModal, setShowTopicModal] = useState(false);
   const [selectedTopic, setSelectedTopic] = useState(null);
+const [diagnosis, setDiagnosis] = useState(null);
 
   // ユーザーID生成
   useEffect(() => {
@@ -139,8 +140,9 @@ export default function Home() {
       );
       setLog(updatedLog);
       
-      // リフレクションチェック（5往復ごと）
+      // 5往復ごとに診断を生成
       if (updatedLog.length > 0 && updatedLog.length % 5 === 0) {
+        await generateDiagnosis(data.conversation_id);
         await checkForReflection(data.conversation_id);
       }
     } catch (err) {
@@ -151,6 +153,23 @@ export default function Home() {
       setIsLoading(false);
     }
   }
+
+  // 診断を生成
+  const generateDiagnosis = async (convId) => {
+    try {
+      const res = await fetch(`http://localhost:8000/diagnosis/${convId}`, {
+        method: 'POST'
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        setDiagnosis(data);
+        // 診断結果を診断パネルに表示
+      }
+    } catch (err) {
+      console.error('診断生成エラー:', err);
+    }
+  };
 
   // リフレクションプロンプトを取得
   const checkForReflection = async (convId) => {

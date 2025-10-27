@@ -354,6 +354,57 @@ async def get_exercises(session: Session = Depends(get_session)):
     return {"exercises": result}
 
 
+@app.post("/diagnosis/{conversation_id}")
+async def generate_diagnosis(conversation_id: int, session: Session = Depends(get_session)):
+    """5問回答後の診断を生成"""
+    # 会話のメッセージを取得
+    statement = select(Message).where(Message.conversation_id == conversation_id).order_by(Message.created_at)
+    messages = session.exec(statement).all()
+    
+    if not messages:
+        return {"error": "メッセージが見つかりません"}
+    
+    # 会話内容をまとめる
+    conversation = "\n".join([f"{m.role}: {m.content}" for m in messages])
+    
+    # 思考の深さスコアの平均を計算
+    user_scores = [m.depth_score for m in messages if m.role == "user" and m.depth_score > 0]
+    avg_depth_score = sum(user_scores) / len(user_scores) if user_scores else 0
+    
+    # OpenAIで診断分析を生成
+    diagnosis_prompt = f"""以下の会話を分析して、ユーザーの思考パターンと成長度を診断してください。
+
+会話内容:
+{conversation}
+
+思考の深さスコア（平均）: {avg_depth_score:.2f} / 10.0
+
+以下の観点で診断してください：
+1. 思考の深さ：どのくらい深く考えているか
+2. 自己理解：自分自身を理解しているか
+3. 成長ポイント：これから成長できる点
+4. 次のステップ：おすすめのトレーニング内容
+
+簡潔で励みになる診断結果を提供してください（200文字程度）："""
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4-turbo",
+            messages=[{"role": "user", "content": diagnosis_prompt}],
+            max_tokens=300
+        )
+        diagnosis = response.choices[0].message.content
+        
+        return {
+            "diagnosis": diagnosis,
+            "avg_depth_score": avg_depth_score,
+            "message_count": len(messages),
+            "conversation_id": conversation_id
+        }
+    except Exception as e:
+        return {"error": f"診断生成中にエラーが発生しました: {str(e)}"}
+
+
 @app.post("/exercises/{exercise_id}/evaluate")
 async def evaluate_prompt(exercise_id: int, request: Request, session: Session = Depends(get_session)):
     """ユーザープロンプトを評価"""
