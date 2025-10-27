@@ -71,12 +71,12 @@ export default function TrainingTopicModal({ onSelect, onClose }) {
           <h2 className="text-3xl font-light text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-purple-200 to-pink-200 mb-2">
             今日は何について考えますか？
           </h2>
-          <p className="text-purple-200 text-sm">テーマを選択してトレーニングを始めましょう</p>
+          <p className="text-purple-200 text-sm">番号を選んでトレーニングを始めましょう</p>
         </div>
 
         {/* Topics */}
         <div className="grid grid-cols-2 gap-4 mb-8 max-h-96 overflow-y-auto custom-scrollbar">
-          {topics.map((topic) => (
+          {topics.map((topic, index) => (
             <button
               key={topic.id}
               onClick={() => setSelectedTopic(topic.id)}
@@ -86,7 +86,12 @@ export default function TrainingTopicModal({ onSelect, onClose }) {
                   : 'border-purple-400/20 bg-purple-800/10 hover:border-purple-400/40 hover:bg-purple-800/20'
               }`}
             >
-              <div className="text-3xl mb-2">{topic.icon}</div>
+              {/* 番号バッジ */}
+              <div className="absolute top-3 left-3 w-8 h-8 bg-gradient-to-r from-purple-400 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg">
+                {index + 1}
+              </div>
+              
+              <div className="text-3xl mb-2 mt-2">{topic.icon}</div>
               <h3 className="text-purple-200 font-medium mb-1">{topic.title}</h3>
               <p className="text-purple-300/70 text-xs leading-relaxed">{topic.description}</p>
               {selectedTopic === topic.id && (
